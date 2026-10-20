@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Administrador - Rifas</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background: #f1f5f9; color: #0f172a; padding: 16px; }
+    .container { max-width: 860px; margin: 0 auto; }
+
+    #login-box {
+      max-width: 380px;
+      margin: 60px auto;
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    #login-box h2 { margin-bottom: 16px; text-align: center; color: #001f60; }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .card h2 { font-size: 1.22rem; margin-bottom: 14px; color: #001f60; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+
+    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.92rem; }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .btn {
+      display: inline-block;
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .btn-green { background: #16a34a; color: white; }
+    .btn-red { background: #dc2626; color: white; }
+    .btn-blue { background: #001f60; color: white; }
+    .btn-gold { background: #d97706; color: white; }
+    .btn-gray { background: #475569; color: white; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 12px;
+    }
+    .winners-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
+
+    .buyer-preview {
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 12px;
+      min-height: 32px;
+    }
+
+    /* Tarjetas del Informe de Recaudación */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat-box {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+    .stat-box.highlight {
+      background: #f0fdf4;
+      border-color: #86efac;
+    }
+    .stat-box span.stat-label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+    .stat-box strong.stat-value {
+      font-size: 1.45rem;
+      color: #001f60;
+      display: block;
+    }
+    .stat-box.highlight strong.stat-value {
+      color: #15803d;
+      font-size: 1.6rem;
+    }
+    .stat-sub {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .admin-cell {
+      padding: 10px 4px;
+      text-align: center;
+      border: 1.5px solid #94a3b8;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+      background: white;
+    }
+    .admin-cell.sold { background: #dcfce7; border-color: #16a34a; color: #166534; }
+    .admin-cell.selected { outline: 3px solid #2563eb; transform: scale(1.05); }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; font-size: 0.95rem; }
+    th { background: #f8fafc; }
+
+    .print-only-header { display: none; }
+
+    /* Formato limpio de Impresión / PDF */
+    @media print {
+      body { background: white; padding: 0; color: black; }
+      .no-print { display: none !important; }
+      .card { box-shadow: none; border: none; padding: 0; margin-bottom: 16px; }
+      .print-only-header {
+        display: block;
+        border-bottom: 2px solid #001f60;
+        padding-bottom: 10px;
+        margin-bottom: 16px;
+      }
+      .stat-box { border: 1px solid #94a3b8 !important; background: white !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="login-box">
+    <h2>Ingreso Administrador</h2>
+    <label>Correo electrónico</label>
+    <input type="email" id="login-email" placeholder="Correo de administrador">
+    <label>Contraseña</label>
+    <input type="password" id="login-pass" placeholder="••••••••">
+    <button class="btn btn-blue" onclick="iniciarSesion()">Entrar al Panel</button>
+    <p id="login-error" style="color:red; text-align:center; margin-top:8px; font-size:0.9rem;"></p>
+  </div>
+
+  <div class="container" id="admin-panel" style="display:none;">
+    
+    <div class="no-print" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h1 style="font-size:1.4rem; color:#001f60;">Gestión de Rifa</h1>
+      <button onclick="cerrarSesion()" style="background:#e2e8f0; border:none; padding:8px 14px; border-radius:6px; font-weight:600; cursor:pointer;">Cerrar Sesión</button>
+    </div>
+
+    <!-- ENCABEZADO EXCLUSIVO PARA LA HOJA IMPRESA / PDF -->
+    <div class="print-only-header">
+      <h1 id="print-titulo" style="font-size:1.5rem; color:#001f60;">Informe de Rifa - Servicio Sacerdotal Nocturno</h1>
+      <p style="font-size:0.95rem; color:#334155;">Fecha del Sorteo: <strong id="print-fecha">-</strong> | Generado el: <span id="print-hoy"></span></p>
+    </div>
+
+    <!-- 1. CARGAR / MODIFICAR NÚMERO -->
+    <div class="card no-print" id="box-carga">
+      <h2>1. Anotar o Borrar un Número</h2>
+      <p style="font-size:0.9rem; color:#475569; margin-bottom:12px;">
+        Escribí el número abajo o <strong>tocalo directamente en la grilla</strong> para cargarle el nombre o liberarlo.
+      </p>
+      <div class="form-row">
+        <div>
+          <label>Número de Rifa</label>
+          <input type="number" id="input-numero" placeholder="Ej: 45" min="1" oninput="seleccionarNumero(this.value)">
+        </div>
+        <div>
+          <label>Nombre y Apellido del Comprador</label>
+          <input type="text" id="input-nombre" placeholder="Ej: Juan Pérez">
+        </div>
+      </div>
+      <button class="btn btn-green" onclick="guardarNumero()">💾 Guardar como Vendido</button>
+      <button class="btn btn-red" id="btn-borrar" style="display:none;" onclick="borrarNumero()">🗑️ Liberar Número (Dejar Disponible)</button>
+    </div>
+
+    <!-- 2. GRILLA RÁPIDA -->
+    <div class="card no-print">
+      <h2>2. Tocar un número para editarlo rápido</h2>
+      <p style="font-size:0.85rem; color:#475569;">En <strong>verde</strong> figuran los ya vendidos. Tocalos para ver quién lo compró o corregir errores.</p>
+      <div class="admin-grid" id="admin-grilla"></div>
+    </div>
+
+    <!-- 3. ANUNCIAR GANADORES Y FINALIZAR SORTEO -->
+    <div class="card no-print" style="border-top: 4px solid #d97706;">
+      <h2>🏆 3. Anunciar Ganadores y Finalizar Sorteo</h2>
+      <p style="font-size:0.9rem; color:#475569; margin-bottom:14px;">
+        Podés escribir directamente qué número ganó cada premio, o usar la calculadora automática con los números de la Quiniela.
+      </p>
+
+      <div class="winners-row">
+        <div>
+          <label>🥇 N.° Ganador 1.er Premio</label>
+          <input type="number" id="win-p1" placeholder="Ej: 10" oninput="previsualizarGanadores()">
+          <div class="buyer-preview" id="prev-p1">Sin asignar</div>
+        </div>
+        <div>
+          <label>🥈 N.° Ganador 2.do Premio</label>
+          <input type="number" id="win-p2" placeholder="Ej: 45" oninput="previsualizarGanadores()">
+          <div class="buyer-preview" id="prev-p2">Sin asignar</div>
+        </div>
+        <div>
+          <label>🥉 N.° Ganador 3.er Premio</label>
+          <input type="number" id="win-p3" placeholder="Ej: 123" oninput="previsualizarGanadores()">
+          <div class="buyer-preview" id="prev-p3">Sin asignar</div>
+        </div>
+      </div>
+
+      <details style="margin-bottom: 16px; background: #fffbeb; padding: 12px; border-radius: 8px; border: 1px solid #fde68a;">
+        <summary style="font-weight:700; color:#92400e; cursor:pointer; font-size:0.92rem;">
+          🔢 Opcional: Calcular ganadores automáticamente cargando la lista de la Quiniela
+        </summary>
+        <div style="margin-top:10px;">
+          <p style="font-size:0.85rem; color:#78350f; margin-bottom:8px;">
+            Escribí los números que salieron en la Quiniela en orden (separados por espacio o coma). El sistema tomará los últimos 3 dígitos y buscará los primeros que estén vendidos:
+          </p>
+          <textarea id="quiniela-input" rows="2" placeholder="Ej: 4512 8145 0089 7234 9310..."></textarea>
+          <button class="btn btn-gray" style="padding:9px; font-size:0.9rem;" onclick="calcularDesdeQuiniela()">
+            🔍 Buscar Ganadores Vendidos en esta Lista
+          </button>
+        </div>
+      </details>
+
+      <button class="btn btn-gold" onclick="publicarGanadores(true)">
+        🏆 Publicar Ganadores y Marcar Sorteo como FINALIZADO
+      </button>
+      <button class="btn btn-gray" id="btn-reabrir" style="display:none;" onclick="publicarGanadores(false)">
+        🔄 Quitar Anuncio de Finalizado (Volver a poner En Curso)
+      </button>
+    </div>
+
+    <!-- 4. CONFIGURAR EL SORTEO -->
+    <div class="card no-print">
+      <details>
+        <summary style="font-weight:700; font-size:1.1rem; color:#001f60; cursor:pointer;">
+          ⚙️ 4. Configurar Datos del Sorteo (Cantidad de números, Premios, Fecha)
+        </summary>
+        <div style="margin-top:16px;">
+          <div class="form-row">
+            <div>
+              <label>Cantidad Total de Números</label>
+              <input type="number" id="cfg-total" value="400">
+            </div>
+            <div>
+              <label>Valor del Número</label>
+              <input type="text" id="cfg-precio" value="$5000">
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <label>Fecha del Sorteo</label>
+              <input type="text" id="cfg-fecha" value="31/07/2026">
+            </div>
+            <div>
+              <label>Alias Bancario</label>
+              <input type="text" id="cfg-alias" value="SSNMendoza2024">
+            </div>
+          </div>
+          <label>Título del Sorteo</label>
+          <input type="text" id="cfg-titulo" value="GRAN RIFA">
+          <label>1.er Premio</label>
+          <input type="text" id="cfg-premio1" value="UN COSTILLAR">
+          <label>2.do Premio</label>
+          <input type="text" id="cfg-premio2" value="UNA PATA DE JAMÓN">
+          <label>3.er Premio</label>
+          <input type="text" id="cfg-premio3" value="UNA TABLA PERSONALIZADA">
+          
+          <button class="btn btn-blue" onclick="guardarConfig()">Actualizar Configuración del Sorteo</button>
+          <button class="btn btn-red" style="margin-top:12px;" onclick="reiniciarRifaCompleta()">⚠️ Vaciar Todos los Números Vendidos (Nueva Rifa)</button>
+        </div>
+      </details>
+    </div>
+
+    <!-- 5. INFORME DE RECAUDACIÓN Y LISTADO DE COMPRADORES -->
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom: 14px;">
+        <h2 style="border:none; margin:0; padding:0;">📊 5. Informe de Recaudación y Compradores</h2>
+        <div class="no-print" style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-blue" style="width:auto; padding:9px 14px; margin:0;" onclick="imprimirInforme()">
+            🖨️ Imprimir / Guardar Informe PDF
+          </button>
+          <button class="btn btn-green" style="width:auto; padding:9px 14px; margin:0;" onclick="descargarCSV()">
+            📥 Descargar Excel (CSV)
+          </button>
+        </div>
+      </div>
+
+      <!-- Resumen numérico y económico -->
+      <div class="stats-grid">
+        <div class="stat-box highlight">
+          <span class="stat-label">Total Recaudado</span>
+          <strong class="stat-value" id="rep-recaudado">$0</strong>
+          <div class="stat-sub" id="rep-valor-unitario">Valor por n.°: $5000</div>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Números Vendidos</span>
+          <strong class="stat-value" id="rep-vendidos">0 / 400</strong>
+          <div class="stat-sub" id="rep-porcentaje">0% del total</div>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Números Libres</span>
+          <strong class="stat-value" id="rep-libres">400</strong>
+          <div class="stat-sub">Disponibles para vender</div>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Recaudación Potencial (100%)</span>
+          <strong class="stat-value" id="rep-potencial">$0</strong>
+          <div class="stat-sub">Si se venden todos</div>
+        </div>
+      </div>
+
+      <input type="text" id="buscador" class="no-print" placeholder="Buscar comprador por nombre o número..." oninput="dibujarTabla()">
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:90px;">Número</th>
+            <th>Nombre del Comprador</th>
+            <th style="width:130px;">Monto</th>
+            <th class="no-print" style="width:100px;">Acción</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-vendidos"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCMZert-sihBYosrfAYqpxUB9OKj4vQpBQ",
+      authDomain: "rifas-ssn.firebaseapp.com",
+      databaseURL: "https://rifas-ssn-default-rtdb.firebaseio.com",
+      projectId: "rifas-ssn",
+      storageBucket: "rifas-ssn.firebasestorage.app",
+      messagingSenderId: "381687801148",
+      appId: "1:381687801148:web:d07b390c6c77ae8dddea39",
+      measurementId: "G-XQVM1HQ2JQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    let totalNumeros = 400;
+    let precioTexto = "$5000";
+    let vendidosMap = {};
+
+    onAuthStateChanged(auth, (user) => {
+      document.getElementById('login-box').style.display = user ? 'none' : 'block';
+      document.getElementById('admin-panel').style.display = user ? 'block' : 'none';
+    });
+
+    window.iniciarSesion = async () => {
+      const email = document.getElementById('login-email').value.trim();
+      const pass = document.getElementById('login-pass').value;
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+      } catch (e) {
+        document.getElementById('login-error').textContent = "Correo o contraseña incorrectos.";
+      }
+    };
+
+    window.cerrarSesion = () => signOut(auth);
+
+    function obtenerPrecioNumerico(str) {
+      const limpio = String(str || '').replace(/\D/g, '');
+      return parseInt(limpio, 10) || 0;
+    }
+
+    function formatearPesos(monto) {
+      return '$' + monto.toLocaleString('es-AR');
+    }
+
+    onValue(ref(db, 'rifa'), (snapshot) => {
+      const data = snapshot.val() || {};
+      const cfg = data.config || {};
+      const win = data.ganadores || {};
+      vendidosMap = data.vendidos || {};
+
+      if (cfg.totalNumeros) {
+        totalNumeros = parseInt(cfg.totalNumeros);
+        document.getElementById('cfg-total').value = totalNumeros;
+      }
+      if (cfg.precio) {
+        precioTexto = cfg.precio;
+        document.getElementById('cfg-precio').value = cfg.precio;
+      }
+      if (cfg.fecha) {
+        document.getElementById('cfg-fecha').value = cfg.fecha;
+        document.getElementById('print-fecha').textContent = cfg.fecha;
+      }
+      if (cfg.alias) document.getElementById('cfg-alias').value = cfg.alias;
+      if (cfg.titulo) {
+        document.getElementById('cfg-titulo').value = cfg.titulo;
+        document.getElementById('print-titulo').textContent = 'Informe de Rifa: ' + cfg.titulo;
+      }
+      if (cfg.premio1) document.getElementById('cfg-premio1').value = cfg.premio1;
+      if (cfg.premio2) document.getElementById('cfg-premio2').value = cfg.premio2;
+      if (cfg.premio3) document.getElementById('cfg-premio3').value = cfg.premio3;
+
+      if (win.p1 !== undefined) document.getElementById('win-p1').value = win.p1 || '';
+      if (win.p2 !== undefined) document.getElementById('win-p2').value = win.p2 || '';
+      if (win.p3 !== undefined) document.getElementById('win-p3').value = win.p3 || '';
+      document.getElementById('btn-reabrir').style.display = win.finalizado ? 'block' : 'none';
+
+      previsualizarGanadores();
+      dibujarGrillaAdmin();
+      actualizarInformeYTabla();
+    });
+
+    function actualizarInformeYTabla() {
+      const cantVendidos = Object.keys(vendidosMap).length;
+      const cantLibres = Math.max(0, totalNumeros - cantVendidos);
+      const valorUnitario = obtenerPrecioNumerico(precioTexto);
+      const recaudado = cantVendidos * valorUnitario;
+      const potencial = totalNumeros * valorUnitario;
+      const porcentaje = totalNumeros > 0 ? ((cantVendidos / totalNumeros) * 100).toFixed(1) : 0;
+
+      document.getElementById('rep-recaudado').textContent = formatearPesos(recaudado);
+      document.getElementById('rep-valor-unitario').textContent = `Valor por n.°: ${formatearPesos(valorUnitario)}`;
+      document.getElementById('rep-vendidos').textContent = `${cantVendidos} / ${totalNumeros}`;
+      document.getElementById('rep-porcentaje').textContent = `${porcentaje}% vendido`;
+      document.getElementById('rep-libres').textContent = cantLibres;
+      document.getElementById('rep-potencial').textContent = formatearPesos(potencial);
+
+      dibujarTabla();
+    }
+
+    window.previsualizarGanadores = () => {
+      ['p1', 'p2', 'p3'].forEach(id => {
+        const val = parseInt(document.getElementById('win-' + id).value);
+        const box = document.getElementById('prev-' + id);
+        if (!val) {
+          box.innerHTML = '<span style="color:#64748b;">Sin asignar</span>';
+        } else if (vendidosMap[val]) {
+          box.innerHTML = `<span style="color:#166534;">✅ Comprador: <strong>${vendidosMap[val].nombre}</strong></span>`;
+        } else {
+          box.innerHTML = `<span style="color:#dc2626;">⚠️ Número no vendido / libre</span>`;
+        }
+      });
+    };
+
+    window.calcularDesdeQuiniela = () => {
+      const texto = document.getElementById('quiniela-input').value;
+      const partes = texto.split(/[\s,;]+/).map(s => s.trim()).filter(Boolean);
+      const ganadoresEncontrados = [];
+
+      for (const item of partes) {
+        const soloDigitos = item.replace(/\D/g, '');
+        if (!soloDigitos) continue;
+        const ultimos3 = parseInt(soloDigitos.slice(-3), 10);
+
+        if (ultimos3 >= 1 && ultimos3 <= totalNumeros && vendidosMap[ultimos3]) {
+          if (!ganadoresEncontrados.includes(ultimos3)) {
+            ganadoresEncontrados.push(ultimos3);
+          }
+        }
+        if (ganadoresEncontrados.length === 3) break;
+      }
+
+      if (ganadoresEncontrados.length === 0) {
+        return alert('Ninguno de los números ingresados coincide con un número vendido entre 1 y ' + totalNumeros);
+      }
+
+      if (ganadoresEncontrados[0]) document.getElementById('win-p1').value = ganadoresEncontrados[0];
+      if (ganadoresEncontrados[1]) document.getElementById('win-p2').value = ganadoresEncontrados[1];
+      if (ganadoresEncontrados[2]) document.getElementById('win-p3').value = ganadoresEncontrados[2];
+
+      previsualizarGanadores();
+      alert(`Se asignaron ${ganadoresEncontrados.length} número(s) ganador(es) vendido(s). Revisalos y tocá el botón dorado para publicarlos.`);
+    };
+
+    window.publicarGanadores = async (finalizado) => {
+      const p1 = parseInt(document.getElementById('win-p1').value) || null;
+      const p2 = parseInt(document.getElementById('win-p2').value) || null;
+      const p3 = parseInt(document.getElementById('win-p3').value) || null;
+
+      if (finalizado && !p1 && !p2 && !p3) {
+        return alert('Ingresá al menos el número ganador del 1.er Premio antes de publicar.');
+      }
+
+      await set(ref(db, 'rifa/ganadores'), {
+        finalizado,
+        p1,
+        p2,
+        p3
+      });
+
+      alert(finalizado
+        ? '🏆 ¡Ganadores publicados! En la web ahora se destacan los ganadores y el resto de la grilla queda atenuada.'
+        : 'Se quitó el anuncio de finalizado. El sorteo vuelve a figurar en curso.');
+    };
+
+    function dibujarGrillaAdmin() {
+      const grilla = document.getElementById('admin-grilla');
+      grilla.innerHTML = '';
+      const numActual = parseInt(document.getElementById('input-numero').value);
+
+      for (let i = 1; i <= totalNumeros; i++) {
+        const div = document.createElement('div');
+        const vendido = vendidosMap[i];
+        div.className = 'admin-cell' + (vendido ? ' sold' : '') + (numActual === i ? ' selected' : '');
+        div.textContent = i;
+        div.onclick = () => {
+          document.getElementById('input-numero').value = i;
+          seleccionarNumero(i);
+          document.getElementById('box-carga').scrollIntoView({ behavior: 'smooth' });
+        };
+        grilla.appendChild(div);
+      }
+    }
+
+    window.seleccionarNumero = (num) => {
+      const n = parseInt(num);
+      const registro = vendidosMap[n];
+      const inputNombre = document.getElementById('input-nombre');
+      const btnBorrar = document.getElementById('btn-borrar');
+
+      if (registro) {
+        inputNombre.value = registro.nombre;
+        btnBorrar.style.display = 'block';
+      } else {
+        inputNombre.value = '';
+        btnBorrar.style.display = 'none';
+      }
+      dibujarGrillaAdmin();
+    };
+
+    window.guardarNumero = async () => {
+      const num = parseInt(document.getElementById('input-numero').value);
+      const nombre = document.getElementById('input-nombre').value.trim();
+
+      if (!num || num < 1 || num > totalNumeros) {
+        return alert('Ingresá un número válido entre 1 y ' + totalNumeros);
+      }
+      if (!nombre) {
+        return alert('Escribí el nombre de la persona que compró el número.');
+      }
+
+      await set(ref(db, `rifa/vendidos/${num}`), { nombre });
+      document.getElementById('input-numero').value = '';
+      document.getElementById('input-nombre').value = '';
+      document.getElementById('btn-borrar').style.display = 'none';
+    };
+
+    window.borrarNumero = async () => {
+      const num = parseInt(document.getElementById('input-numero').value);
+      if (!num) return;
+      if (confirm(`¿Seguro que querés liberar el número ${num}? Volverá a aparecer disponible en la web.`)) {
+        await remove(ref(db, `rifa/vendidos/${num}`));
+        document.getElementById('input-numero').value = '';
+        document.getElementById('input-nombre').value = '';
+        document.getElementById('btn-borrar').style.display = 'none';
+      }
+    };
+
+    window.guardarConfig = async () => {
+      const nuevaConfig = {
+        totalNumeros: parseInt(document.getElementById('cfg-total').value) || 400,
+        precio: document.getElementById('cfg-precio').value.trim(),
+        fecha: document.getElementById('cfg-fecha').value.trim(),
+        alias: document.getElementById('cfg-alias').value.trim(),
+        titulo: document.getElementById('cfg-titulo').value.trim(),
+        premio1: document.getElementById('cfg-premio1').value.trim(),
+        premio2: document.getElementById('cfg-premio2').value.trim(),
+        premio3: document.getElementById('cfg-premio3').value.trim()
+      };
+      await set(ref(db, 'rifa/config'), nuevaConfig);
+      alert('Configuración actualizada con éxito.');
+    };
+
+    window.reiniciarRifaCompleta = async () => {
+      const conf1 = confirm('⚠️ ¿Estás seguro de que querés BORRAR TODOS los números vendidos y los ganadores para empezar una rifa nueva?');
+      if (conf1) {
+        const conf2 = confirm('Última confirmación: Se vaciará toda la grilla y los resultados. ¿Continuar?');
+        if (conf2) {
+          await remove(ref(db, 'rifa/vendidos'));
+          await remove(ref(db, 'rifa/ganadores'));
+          alert('Se vaciaron todos los números y resultados.');
+        }
+      }
+    };
+
+    window.dibujarTabla = () => {
+      const tbody = document.getElementById('tabla-vendidos');
+      const filtro = document.getElementById('buscador').value.toLowerCase();
+      const valorUnitario = formatearPesos(obtenerPrecioNumerico(precioTexto));
+      tbody.innerHTML = '';
+
+      const claves = Object.keys(vendidosMap).sort((a, b) => parseInt(a) - parseInt(b));
+      for (const num of claves) {
+        const nombre = vendidosMap[num].nombre || '';
+        if (filtro && !num.includes(filtro) && !nombre.toLowerCase().includes(filtro)) continue;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>#${num}</strong></td>
+          <td>${nombre}</td>
+          <td>${valorUnitario}</td>
+          <td class="no-print">
+            <button onclick="document.getElementById('input-numero').value=${num}; seleccionarNumero(${num}); window.scrollTo({top:0, behavior:'smooth'});" style="padding:4px 10px; cursor:pointer;">Editar</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+    };
+
+    window.imprimirInforme = () => {
+      document.getElementById('print-hoy').textContent = new Date().toLocaleDateString('es-AR');
+      window.print();
+    };
+
+    window.descargarCSV = () => {
+      const claves = Object.keys(vendidosMap).sort((a, b) => parseInt(a) - parseInt(b));
+      const valorUnitario = obtenerPrecioNumerico(precioTexto);
+      const recaudado = claves.length * valorUnitario;
+
+      let csv = "\uFEFF"; // BOM para que Excel lea bien los acentos
+      csv += "INFORME DE RIFA - SERVICIO SACERDOTAL NOCTURNO\n";
+      csv += `Numeros Vendidos:;${claves.length} de ${totalNumeros}\n`;
+      csv += `Valor por Numero:;${valorUnitario}\n`;
+      csv += `Total Recaudado:;${recaudado}\n\n`;
+      csv += "Numero;Comprador;Monto\n";
+
+      for (const num of claves) {
+        const nombre = (vendidosMap[num].nombre || '').replace(/;/g, ',');
+        csv += `${num};${nombre};${valorUnitario}\n`;
+      }
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'informe-recaudacion-rifa.csv';
+      link.click();
+    };
+  </script>
+</body>
+</html>

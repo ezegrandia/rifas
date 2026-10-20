@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gran Rifa - Servicio Sacerdotal Nocturno</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --primary: #001f60;
+      --secondary: #001542;
+      --accent: #d97706;
+      --bg: #f4f6f9;
+      --available-bg: #ffffff;
+      --sold-bg: #fee2e2;
+      --sold-text: #991b1b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: #1e293b;
+      padding-bottom: 40px;
+    }
+
+    /* Banner Superior con el azul exacto del logo */
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 24px 16px 32px;
+      border-bottom: 5px solid var(--accent);
+    }
+
+    .header-content {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+    }
+
+    /* Contenedor que recorta el margen blanco sobrante del logo.png */
+    .logo-wrap {
+      width: 98px;
+      height: 98px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+      flex-shrink: 0;
+    }
+
+    .logo-ssn {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.13);
+      /* Recorta el borde blanco exterior de la imagen */
+      display: block;
+    }
+
+    .header-text {
+      text-align: center;
+    }
+
+    .org-badge {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      opacity: 0.92;
+      margin-bottom: 4px;
+    }
+
+    header h1 {
+      font-size: 2.1rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    header p.subtitle {
+      font-style: italic;
+      opacity: 0.9;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 14px;
+    }
+
+    .info-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: -18px;
+      margin-bottom: 24px;
+    }
+
+    .info-card {
+      background: white;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border-top: 4px solid var(--primary);
+    }
+
+    .info-card span.label {
+      display: block;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      color: #64748b;
+      font-weight: 700;
+    }
+
+    .info-card strong {
+      font-size: 1.25rem;
+      color: var(--primary);
+      display: block;
+      margin-top: 4px;
+    }
+
+    .btn-copy {
+      margin-top: 6px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    /* Cuadro de Ganadores Anunciados */
+    #winners-banner {
+      display: none;
+      background: linear-gradient(135deg, #fffbeb, #fef3c7);
+      border: 2px solid #f59e0b;
+      border-radius: 14px;
+      padding: 22px 18px;
+      margin-bottom: 26px;
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.18);
+      text-align: center;
+    }
+
+    #winners-banner.active {
+      display: block;
+    }
+
+    .winners-title {
+      color: #92400e;
+      font-size: 1.4rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .winners-subtitle {
+      color: #b45309;
+      font-size: 0.92rem;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    .winners-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px;
+    }
+
+    .winner-card {
+      background: white;
+      border: 1.5px solid #fbbf24;
+      border-radius: 10px;
+      padding: 14px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .winner-prize-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #b45309;
+      text-transform: uppercase;
+      display: block;
+    }
+
+    .winner-prize-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    .winner-number {
+      display: inline-block;
+      background: #f59e0b;
+      color: white;
+      font-size: 1.3rem;
+      font-weight: 800;
+      padding: 4px 14px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+
+    .winner-person {
+      display: block;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* Premios */
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 20px 0 12px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .prizes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .prize-card {
+      background: white;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      border: 1px solid #e2e8f0;
+    }
+
+    .prize-badge {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+
+    .prize-card h3 {
+      font-size: 1.1rem;
+      color: #0f172a;
+    }
+
+    /* Controles y Filtros */
+    .actions-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .filter-btn {
+      background: #e2e8f0;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: #334155;
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-capture {
+      background: #16a34a;
+      color: white;
+      border: none;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 6px rgba(22, 163, 74, 0.3);
+    }
+
+    .btn-capture:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    #area-captura {
+      background: var(--bg);
+      padding: 12px;
+      border-radius: 12px;
+      position: relative;
+    }
+
+    .finished-stamp {
+      display: none;
+      background: #dc2626;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      box-shadow: 0 3px 8px rgba(220, 38, 38, 0.3);
+    }
+
+    .finished-stamp.active {
+      display: block;
+    }
+
+    .grid-header {
+      background: white;
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .box-sample {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      border: 1px solid #cbd5e1;
+      background: white;
+    }
+
+    .box-sample.sold {
+      background: var(--sold-bg);
+      border-color: #f87171;
+    }
+
+    .box-sample.winner {
+      background: #fef08a;
+      border-color: #eab308;
+    }
+
+    .numbers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .num-cell {
+      background: var(--available-bg);
+      border: 1.5px solid #94a3b8;
+      border-radius: 6px;
+      padding: 10px 4px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #0f172a;
+      transition: all 0.15s;
+      user-select: none;
+      cursor: pointer;
+    }
+
+    .num-cell:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+      border-color: var(--primary);
+    }
+
+    .num-cell.sold {
+      background: var(--sold-bg);
+      color: var(--sold-text);
+      border-color: #fca5a5;
+      text-decoration: line-through;
+    }
+
+    /* Cuando el sorteo finaliza, opaca todos los números excepto los ganadores */
+    .numbers-grid.sorteo-finalizado .num-cell:not(.winner) {
+      opacity: 0.32;
+      background: #e2e8f0;
+      color: #64748b;
+      border-color: #cbd5e1;
+      filter: grayscale(100%);
+    }
+
+    .numbers-grid.sorteo-finalizado .num-cell:not(.winner):hover {
+      opacity: 0.75;
+    }
+
+    .num-cell.winner {
+      background: #fef08a !important;
+      color: #854d0e !important;
+      border: 2.5px solid #eab308 !important;
+      text-decoration: none !important;
+      box-shadow: 0 4px 12px rgba(234, 179, 8, 0.55);
+      transform: scale(1.07);
+      z-index: 2;
+      opacity: 1 !important;
+      filter: none !important;
+    }
+
+    .num-cell.hidden {
+      display: none;
+    }
+
+    .empty-msg {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 28px;
+      background: white;
+      border-radius: 8px;
+      color: #64748b;
+      font-weight: 600;
+      border: 1px dashed #cbd5e1;
+    }
+
+    .rules-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 10px;
+      padding: 18px;
+      line-height: 1.5;
+      font-size: 0.92rem;
+      margin-top: 20px;
+    }
+
+    .rules-box h3 {
+      color: #92400e;
+      margin-bottom: 10px;
+      font-size: 1.05rem;
+    }
+
+    .rules-box ul {
+      padding-left: 20px;
+    }
+
+    .rules-box li {
+      margin-bottom: 8px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      z-index: 1000;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: white;
+      width: 100%;
+      max-width: 360px;
+      border-radius: 14px;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      animation: popIn 0.15s ease-out;
+    }
+
+    @keyframes popIn {
+      from {
+        transform: scale(0.9);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .modal-num {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .modal-status {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .modal-status.libre {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .modal-status.ocupado {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .modal-status.ganador {
+      background: #fef08a;
+      color: #854d0e;
+      border: 1px solid #eab308;
+    }
+
+    .modal-owner {
+      font-size: 1.05rem;
+      color: #334155;
+      margin-bottom: 20px;
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .modal-close {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="header-content">
+      <div class="logo-wrap">
+        <img src="logo.png" class="logo-ssn" alt="Logo SSN"
+          onerror="this.style.display='none'; document.getElementById('svg-logo-fallback').style.display='block';">
+        <svg id="svg-logo-fallback" style="display:none; width:100%; height:100%;" viewBox="0 0 200 200"
+          xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="100" fill="#001f60" />
+          <circle cx="100" cy="100" r="61" fill="#ffffff" />
+          <path d="M 88,43 H 112 V 69 H 138 V 93 H 112 V 163 H 88 V 93 H 62 V 69 H 88 Z" fill="#001f60" />
+          <path d="M 91.5,46.5 H 108.5 V 72.5 H 134.5 V 89.5 H 108.5 V 162 H 91.5 V 89.5 H 65.5 V 72.5 H 91.5 Z"
+            fill="none" stroke="#ffffff" stroke-width="2.2" />
+          <path d="M 80,157 A 61,61 0 0,0 120,157 L 120,170 L 80,170 Z" fill="#001f60" />
+          <defs>
+            <path id="arcTop" d="M 22,108 A 78,78 0 1,1 178,108" />
+            <path id="arcBottom" d="M 32,118 A 74,74 0 0,0 168,118" />
+          </defs>
+          <text fill="#ffffff" font-size="13.2" font-weight="700" font-family="Arial, sans-serif" letter-spacing="0.6">
+            <textPath href="#arcTop" startOffset="50%" text-anchor="middle">
+              •SERVICIO SACERDOTAL NOCTURNO•
+            </textPath>
+          </text>
+          <text fill="#ffffff" font-size="17" font-weight="700" font-family="Arial, sans-serif" letter-spacing="2.5">
+            <textPath href="#arcBottom" startOffset="50%" text-anchor="middle">
+              MENDOZA
+            </textPath>
+          </text>
+        </svg>
+      </div>
+
+      <div class="header-text">
+        <div class="org-badge" id="ui-org">Servicio Sacerdotal Nocturno Mendoza</div>
+        <h1 id="ui-titulo">GRAN RIFA</h1>
+        <p class="subtitle">¡Ayúdanos a seguir ayudando!</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="info-bar">
+      <div class="info-card">
+        <span class="label">Valor por número</span>
+        <strong id="ui-precio">$5000</strong>
+      </div>
+      <div class="info-card">
+        <span class="label">Fecha del Sorteo</span>
+        <strong id="ui-fecha">31/07/2026</strong>
+      </div>
+      <div class="info-card">
+        <span class="label">Alias para transferir</span>
+        <strong id="ui-alias">SSNMendoza2024</strong>
+        <button class="btn-copy" onclick="copiarAlias()">Copiar Alias</button>
+      </div>
+    </div>
+
+    <!-- CUADRO DE GANADORES -->
+    <div id="winners-banner">
+      <div class="winners-title">🏆 ¡Resultados del Sorteo! 🏆</div>
+      <div class="winners-subtitle">Felicitaciones a los ganadores y gracias a todos por colaborar</div>
+      <div class="winners-grid" id="winners-cards-container"></div>
+    </div>
+
+    <h2 class="section-title">Premios en Juego</h2>
+    <div class="prizes-grid">
+      <div class="prize-card">
+        <span class="prize-badge">1.er PREMIO</span>
+        <h3 id="ui-premio1">UN COSTILLAR</h3>
+      </div>
+      <div class="prize-card">
+        <span class="prize-badge">2.do PREMIO</span>
+        <h3 id="ui-premio2">UNA PATA DE JAMÓN</h3>
+      </div>
+      <div class="prize-card">
+        <span class="prize-badge">3.er PREMIO</span>
+        <h3 id="ui-premio3">UNA TABLA PERSONALIZADA</h3>
+      </div>
+    </div>
+
+    <div class="actions-bar">
+      <div class="filter-group">
+        <button class="filter-btn active" id="btn-todos" onclick="filtrar('todos')">Ver Todos</button>
+        <button class="filter-btn" id="btn-libres" onclick="filtrar('libres')">Solo Disponibles</button>
+        <button class="filter-btn" id="btn-vendidos" onclick="filtrar('vendidos')">Reservados / Vendidos</button>
+      </div>
+      <button class="btn-capture" id="btn-captura" onclick="descargarImagenGrilla()">
+        📸 Guardar Imagen de la Grilla
+      </button>
+    </div>
+
+    <div id="area-captura">
+      <div class="finished-stamp" id="stamp-finalizado">
+        🏁 SORTEO FINALIZADO 🏁
+      </div>
+
+      <h2 class="section-title" style="margin-top: 4px;">Números de la Rifa</h2>
+      <p style="text-align:center; font-size:0.88rem; margin-bottom:12px; color:#475569;">
+        Tocá cualquier número para ver a quién está asignado o si está libre.
+      </p>
+
+      <div class="grid-header">
+        <div class="legend">
+          <div class="legend-item">
+            <div class="box-sample"></div>
+            <span>Disponibles (<span id="count-libres">0</span>)</span>
+          </div>
+          <div class="legend-item">
+            <div class="box-sample sold"></div>
+            <span>Vendidos (<span id="count-vendidos">0</span>)</span>
+          </div>
+          <div class="legend-item" id="legend-winner" style="display:none;">
+            <div class="box-sample winner"></div>
+            <span>Ganadores 🏆</span>
+          </div>
+        </div>
+        <div style="font-size: 0.82rem; color: #64748b; font-weight: 600;">
+          Sorteo: <span id="captura-fecha">31/07/2026</span>
+        </div>
+      </div>
+
+      <div class="numbers-grid" id="grilla-numeros"></div>
+    </div>
+
+    <div class="rules-box">
+      <h3>📋 Modalidad e Instrucciones del Sorteo</h3>
+      <ul>
+        <li>El sorteo se realizará el día <strong id="regla-fecha">31/07/2026</strong> mediante la <strong>Quiniela de
+            Mendoza</strong>.</li>
+        <li>Participan los números del <strong>001 al <span id="regla-total">400</span></strong>.</li>
+        <li>Se tomará el <strong>sorteo de la mañana</strong>, el cual consta de un listado de 20 números de 3 cifras.
+        </li>
+        <li>Ganará el participante cuyo número coincida con los <strong>últimos 3 dígitos del primer número</strong> que
+          aparezca en el listado.</li>
+        <li>Si ese número no corresponde a ningún participante, se continuará con el segundo, tercero y así
+          sucesivamente dentro del listado.</li>
+        <li>En caso de no haber ganador en el sorteo de la mañana, se pasará al <strong>sorteo del mediodía</strong>, y
+          luego al <strong>sorteo nocturno</strong>.</li>
+        <li>Si aún así no hubiera ganador, el sorteo continuará al día siguiente con la misma modalidad, hasta que haya
+          un ganador.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-info" onclick="cerrarModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-num" id="modal-numero">#1</div>
+      <div class="modal-status" id="modal-estado">DISPONIBLE</div>
+      <div class="modal-owner" id="modal-detalle"></div>
+      <button class="modal-close" onclick="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCMZert-sihBYosrfAYqpxUB9OKj4vQpBQ",
+      authDomain: "rifas-ssn.firebaseapp.com",
+      databaseURL: "https://rifas-ssn-default-rtdb.firebaseio.com",
+      projectId: "rifas-ssn",
+      storageBucket: "rifas-ssn.firebasestorage.app",
+      messagingSenderId: "381687801148",
+      appId: "1:381687801148:web:d07b390c6c77ae8dddea39",
+      measurementId: "G-XQVM1HQ2JQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let totalNumeros = 400;
+    let vendidosMap = {};
+    let configActual = {};
+    let ganadoresData = {};
+    let filtroActual = 'todos';
+
+    const rifaRef = ref(db, 'rifa');
+    onValue(rifaRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      configActual = data.config || {};
+      vendidosMap = data.vendidos || {};
+      ganadoresData = data.ganadores || {};
+
+      if (configActual.titulo) document.getElementById('ui-titulo').textContent = configActual.titulo;
+      if (configActual.precio) document.getElementById('ui-precio').textContent = configActual.precio;
+      if (configActual.fecha) {
+        document.getElementById('ui-fecha').textContent = configActual.fecha;
+        document.getElementById('regla-fecha').textContent = configActual.fecha;
+        document.getElementById('captura-fecha').textContent = configActual.fecha;
+      }
+      if (configActual.alias) document.getElementById('ui-alias').textContent = configActual.alias;
+      if (configActual.premio1) document.getElementById('ui-premio1').textContent = configActual.premio1;
+      if (configActual.premio2) document.getElementById('ui-premio2').textContent = configActual.premio2;
+      if (configActual.premio3) document.getElementById('ui-premio3').textContent = configActual.premio3;
+      if (configActual.totalNumeros) totalNumeros = parseInt(configActual.totalNumeros);
+
+      document.getElementById('regla-total').textContent = totalNumeros;
+      renderizarGanadores();
+      dibujarGrilla();
+    });
+
+    function obtenerPremioDeNumero(num) {
+      if (!ganadoresData || !ganadoresData.finalizado) return null;
+      if (parseInt(ganadoresData.p1) === num) return '1.er Premio';
+      if (parseInt(ganadoresData.p2) === num) return '2.do Premio';
+      if (parseInt(ganadoresData.p3) === num) return '3.er Premio';
+      return null;
+    }
+
+    function renderizarGanadores() {
+      const banner = document.getElementById('winners-banner');
+      const stamp = document.getElementById('stamp-finalizado');
+      const legendWinner = document.getElementById('legend-winner');
+      const container = document.getElementById('winners-cards-container');
+      const grilla = document.getElementById('grilla-numeros');
+
+      if (ganadoresData && ganadoresData.finalizado) {
+        banner.classList.add('active');
+        stamp.classList.add('active');
+        grilla.classList.add('sorteo-finalizado');
+        legendWinner.style.display = 'flex';
+        container.innerHTML = '';
+
+        const listaPremios = [
+          { label: '🥇 1.er Premio', desc: configActual.premio1 || 'UN COSTILLAR', num: ganadoresData.p1 },
+          { label: '🥈 2.do Premio', desc: configActual.premio2 || 'UNA PATA DE JAMÓN', num: ganadoresData.p2 },
+          { label: '🥉 3.er Premio', desc: configActual.premio3 || 'UNA TABLA PERSONALIZADA', num: ganadoresData.p3 }
+        ];
+
+        listaPremios.forEach(item => {
+          if (!item.num) return;
+          const comprador = vendidosMap[item.num] ? vendidosMap[item.num].nombre : 'Sin registrar';
+          const card = document.createElement('div');
+          card.className = 'winner-card';
+          card.innerHTML = `
+            <span class="winner-prize-label">${item.label}</span>
+            <div class="winner-prize-name">${item.desc}</div>
+            <div class="winner-number">N.° ${item.num}</div>
+            <span class="winner-person">🎉 ${comprador}</span>
+          `;
+          container.appendChild(card);
+        });
+      } else {
+        banner.classList.remove('active');
+        stamp.classList.remove('active');
+        grilla.classList.remove('sorteo-finalizado');
+        legendWinner.style.display = 'none';
+      }
+    }
+
+    function dibujarGrilla() {
+      const contenedor = document.getElementById('grilla-numeros');
+      contenedor.innerHTML = '';
+      let vendidosCount = 0;
+      let visiblesCount = 0;
+
+      for (let i = 1; i <= totalNumeros; i++) {
+        const datosVenta = vendidosMap[i];
+        const estaVendido = Boolean(datosVenta);
+        const premioGanado = obtenerPremioDeNumero(i);
+        if (estaVendido) vendidosCount++;
+
+        const div = document.createElement('div');
+        div.className = 'num-cell' + (estaVendido ? ' sold' : '') + (premioGanado ? ' winner' : '');
+
+        if (filtroActual === 'libres' && estaVendido) {
+          div.classList.add('hidden');
+        } else if (filtroActual === 'vendidos' && !estaVendido) {
+          div.classList.add('hidden');
+        } else {
+          visiblesCount++;
+        }
+
+        div.textContent = premioGanado ? `🏆 ${i}` : i;
+        div.onclick = () => mostrarInfoNumero(i, datosVenta, premioGanado);
+        contenedor.appendChild(div);
+      }
+
+      if (visiblesCount === 0) {
+        const msg = document.createElement('div');
+        msg.className = 'empty-msg';
+        msg.textContent = filtroActual === 'vendidos'
+          ? 'Todavía no hay números reservados.'
+          : '¡Ya se vendieron todos los números!';
+        contenedor.appendChild(msg);
+      }
+
+      document.getElementById('count-vendidos').textContent = vendidosCount;
+      document.getElementById('count-libres').textContent = totalNumeros - vendidosCount;
+    }
+
+    function mostrarInfoNumero(numero, datosVenta, premioGanado) {
+      document.getElementById('modal-numero').textContent = 'Número #' + numero;
+      const estadoEl = document.getElementById('modal-estado');
+      const detalleEl = document.getElementById('modal-detalle');
+
+      if (premioGanado) {
+        const comprador = datosVenta && datosVenta.nombre ? datosVenta.nombre : 'Sin nombre registrado';
+        estadoEl.textContent = `🏆 ¡Ganador ${premioGanado}!`;
+        estadoEl.className = 'modal-status ganador';
+        detalleEl.innerHTML = `Ganador/a:<br><strong style="font-size:1.25rem; color:#001f60;">${comprador}</strong>`;
+      } else if (datosVenta && datosVenta.nombre) {
+        estadoEl.textContent = 'Reservado / Vendido';
+        estadoEl.className = 'modal-status ocupado';
+        detalleEl.innerHTML = `Asignado a:<br><strong style="font-size:1.2rem; color:#001f60;">${datosVenta.nombre}</strong>`;
+      } else {
+        estadoEl.textContent = 'Disponible';
+        estadoEl.className = 'modal-status libre';
+        detalleEl.innerHTML = '¡Este número está libre!<br><span style="font-size:0.9rem; color:#64748b;">Comunicate con el responsable para elegirlo.</span>';
+      }
+
+      document.getElementById('modal-info').classList.add('active');
+    }
+
+    window.cerrarModal = () => {
+      document.getElementById('modal-info').classList.remove('active');
+    };
+
+    window.filtrar = (tipo) => {
+      filtroActual = tipo;
+      document.getElementById('btn-todos').classList.toggle('active', tipo === 'todos');
+      document.getElementById('btn-libres').classList.toggle('active', tipo === 'libres');
+      document.getElementById('btn-vendidos').classList.toggle('active', tipo === 'vendidos');
+      dibujarGrilla();
+    };
+
+    window.copiarAlias = () => {
+      const alias = document.getElementById('ui-alias').textContent;
+      navigator.clipboard.writeText(alias);
+      alert('Alias copiado: ' + alias);
+    };
+
+    window.descargarImagenGrilla = async () => {
+      const btn = document.getElementById('btn-captura');
+      const textoOriginal = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Generando imagen...';
+
+      try {
+        const elemento = document.getElementById('area-captura');
+        const canvas = await html2canvas(elemento, {
+          scale: 2,
+          backgroundColor: '#f4f6f9'
+        });
+
+        const link = document.createElement('a');
+        link.download = 'numeros-rifa.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch (err) {
+        alert('Hubo un problema al generar la imagen.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = textoOriginal;
+      }
+    };
+
+    dibujarGrilla();
+  </script>
+</body>
+
+</html>
