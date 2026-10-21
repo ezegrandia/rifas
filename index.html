@@ -15,7 +15,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./apple-icon-180x180.png">
   <link rel="icon" type="image/png" sizes="192x192" href="./android-icon-192x192.png">
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="96x96" href=".favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="./favicon-96x96.png">
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
   <link rel="manifest" href="./manifest.json">
   <meta name="msapplication-TileColor" content="#ffffff">
@@ -24,6 +24,8 @@
   <title>Gran Rifa - Servicio Sacerdotal Nocturno</title>
   <!-- Etiquetas para mejorar la vista previa en WhatsApp y redes -->
   <meta property="og:title" content="Gran Rifa - Servicio Sacerdotal Nocturno Mendoza">
+  <meta property="og:description"
+    content="¡Ayúdanos a seguir ayudando! Consultá los números disponibles y participá del sorteo.">
   <meta property="og:image" content="https://ezegrandia.github.io/rifas/logo.png">
   <meta property="og:url" content="https://ezegrandia.github.io/rifas/">
   <meta property="og:type" content="website">
@@ -91,7 +93,6 @@
       height: 100%;
       object-fit: cover;
       transform: scale(1.13);
-      /* Recorta el borde blanco exterior de la imagen */
       display: block;
     }
 
@@ -344,6 +345,22 @@
       padding: 12px;
       border-radius: 12px;
       position: relative;
+    }
+
+    /* Formato cuadrado/apaisado de 20 columnas exclusivo al generar la imagen */
+    #area-captura.modo-foto {
+      width: 1080px !important;
+      max-width: none !important;
+      padding: 24px !important;
+    }
+
+    #area-captura.modo-foto .numbers-grid {
+      grid-template-columns: repeat(20, 1fr) !important;
+      gap: 6px !important;
+    }
+
+    #area-captura.modo-foto .ocultar-en-foto {
+      display: none !important;
     }
 
     .finished-stamp {
@@ -704,7 +721,7 @@
       </div>
 
       <h2 class="section-title" style="margin-top: 4px;">Números de la Rifa</h2>
-      <p style="text-align:center; font-size:0.88rem; margin-bottom:12px; color:#475569;">
+      <p class="ocultar-en-foto" style="text-align:center; font-size:0.88rem; margin-bottom:12px; color:#475569;">
         Tocá cualquier número para ver a quién está asignado o si está libre.
       </p>
 
@@ -712,11 +729,11 @@
         <div class="legend">
           <div class="legend-item">
             <div class="box-sample"></div>
-            <span>Disponibles (<span id="count-libres">0</span>)</span>
+            <span>Disponibles (<span id="count-libres">-</span>)</span>
           </div>
           <div class="legend-item">
             <div class="box-sample sold"></div>
-            <span>Vendidos (<span id="count-vendidos">0</span>)</span>
+            <span>Vendidos (<span id="count-vendidos">-</span>)</span>
           </div>
           <div class="legend-item" id="legend-winner" style="display:none;">
             <div class="box-sample winner"></div>
@@ -728,7 +745,9 @@
         </div>
       </div>
 
-      <div class="numbers-grid" id="grilla-numeros"></div>
+      <div class="numbers-grid" id="grilla-numeros">
+        <div class="empty-msg">⏳ Cargando estado de los números...</div>
+      </div>
     </div>
 
     <div class="rules-box">
@@ -942,15 +961,18 @@
 
     window.descargarImagenGrilla = async () => {
       const btn = document.getElementById('btn-captura');
+      const elemento = document.getElementById('area-captura');
       const textoOriginal = btn.innerHTML;
       btn.disabled = true;
       btn.innerHTML = '⏳ Generando imagen...';
 
       try {
-        const elemento = document.getElementById('area-captura');
+        elemento.classList.add('modo-foto');
+
         const canvas = await html2canvas(elemento, {
           scale: 2,
-          backgroundColor: '#f4f6f9'
+          backgroundColor: '#f4f6f9',
+          windowWidth: 1200
         });
 
         const link = document.createElement('a');
@@ -960,12 +982,11 @@
       } catch (err) {
         alert('Hubo un problema al generar la imagen.');
       } finally {
+        elemento.classList.remove('modo-foto');
         btn.disabled = false;
         btn.innerHTML = textoOriginal;
       }
     };
-
-    dibujarGrilla();
   </script>
 </body>
 

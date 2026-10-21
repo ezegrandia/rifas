@@ -15,7 +15,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="./apple-icon-180x180.png">
   <link rel="icon" type="image/png" sizes="192x192" href="./android-icon-192x192.png">
   <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="96x96" href=".favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="./favicon-96x96.png">
   <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
   <link rel="manifest" href="./manifest.json">
   <meta name="msapplication-TileColor" content="#ffffff">
@@ -23,9 +23,10 @@
   <meta name="theme-color" content="#ffffff">
   <title>Panel Administrador - Rifas</title>
   <!-- Etiquetas para mejorar la vista previa en WhatsApp y redes -->
-  <meta property="og:title" content="Gran Rifa - Servicio Sacerdotal Nocturno Mendoza">
+  <meta property="og:title" content="Panel Administrador - Rifas SSN">
+  <meta property="og:description" content="Acceso para carga y gestión de números de la rifa.">
   <meta property="og:image" content="https://ezegrandia.github.io/rifas/logo.png">
-  <meta property="og:url" content="https://ezegrandia.github.io/rifas/">
+  <meta property="og:url" content="https://ezegrandia.github.io/rifas/admin.html">
   <meta property="og:type" content="website">
   <style>
     * {
@@ -349,7 +350,11 @@
       <h2>2. Tocar un número para editarlo rápido</h2>
       <p style="font-size:0.85rem; color:#475569;">En <strong>verde</strong> figuran los ya vendidos. Tocalos para ver
         quién lo compró o corregir errores.</p>
-      <div class="admin-grid" id="admin-grilla"></div>
+      <div class="admin-grid" id="admin-grilla">
+        <div style="grid-column: 1 / -1; text-align:center; padding: 20px; color:#64748b; font-weight:600;">
+          ⏳ Cargando números...
+        </div>
+      </div>
     </div>
 
     <!-- 3. ANUNCIAR GANADORES Y FINALIZAR SORTEO -->
